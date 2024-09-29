@@ -4,6 +4,7 @@ import PokemonList from '../components/PokemonList';
 import Pagination from '../components/Pagination';
 import Layout from '../components/Layout';
 import Filters from '../components/Filters';
+import UserPreferences from '../components/UserPreferences';
 
 const HomePage = () => {
   const [pokemons, setPokemons] = useState([]);
@@ -13,50 +14,47 @@ const HomePage = () => {
 
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedType, setSelectedType] = useState('');
+  const [selectedPreference, setSelectedPreference] = useState('');
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        // Fetch Pokémon based on selected type and search term
-        if (selectedType) {
-          // Fetch Pokémon by type
+        let allPokemons = [];
+
+        // Determine if filtering by user preference or type
+        if (selectedPreference) {
+          // Fetch Pokémon by user preference (type)
+          const data = await fetchPokemonsByType(selectedPreference);
+          allPokemons = data.pokemon.map((p) => p.pokemon);
+        } else if (selectedType) {
+          // Fetch Pokémon by selected type
           const data = await fetchPokemonsByType(selectedType);
-          let filteredPokemons = data.pokemon.map((p) => p.pokemon);
-
-          // Filter by search term if provided
-          if (searchTerm) {
-            filteredPokemons = filteredPokemons.filter((pokemon) =>
-              pokemon.name.toLowerCase().includes(searchTerm.toLowerCase())
-            );
-          }
-
-          setPokemons(filteredPokemons);
-          setTotalPokemons(filteredPokemons.length);
+          allPokemons = data.pokemon.map((p) => p.pokemon);
         } else {
           // Fetch all Pokémon with pagination
           const offset = (currentPage - 1) * pokemonsPerPage;
           const data = await fetchPokemonList(pokemonsPerPage, offset);
-          let allPokemons = data.results;
-
-          // Filter by search term if provided
-          if (searchTerm) {
-            allPokemons = allPokemons.filter((pokemon) =>
-              pokemon.name.toLowerCase().includes(searchTerm.toLowerCase())
-            );
-          }
-
-          setPokemons(allPokemons);
-          setTotalPokemons(searchTerm ? allPokemons.length : data.count);
+          allPokemons = data.results;
         }
+
+        // Filter by search term if provided
+        if (searchTerm) {
+          allPokemons = allPokemons.filter((pokemon) =>
+            pokemon.name.toLowerCase().includes(searchTerm.toLowerCase())
+          );
+        }
+
+        setPokemons(allPokemons);
+        setTotalPokemons(allPokemons.length);
       } catch (error) {
         console.error('Error fetching Pokémon list:', error);
       }
     };
 
     fetchData();
-  }, [currentPage, pokemonsPerPage, selectedType, searchTerm]);
+  }, [currentPage, pokemonsPerPage, selectedType, searchTerm, selectedPreference]);
 
-  // Calculate total pages
+  // Calculate total pages (only relevant when not filtering by type or preference)
   const totalPages = Math.ceil(totalPokemons / pokemonsPerPage);
 
   // Handlers for Filters component
@@ -67,7 +65,15 @@ const HomePage = () => {
 
   const handleTypeChange = (typeValue) => {
     setSelectedType(typeValue);
-    setCurrentPage(1); // Reset to first page when type changes
+    setSelectedPreference(''); // Clear user preference when type is selected
+    setCurrentPage(1);
+  };
+
+  // Handler for UserPreferences component
+  const handlePreferenceSelect = (preference) => {
+    setSelectedPreference(preference);
+    setSelectedType(''); // Clear selected type when user preference is selected
+    setCurrentPage(1);
   };
 
   return (
@@ -78,10 +84,13 @@ const HomePage = () => {
         {/* Filters Component */}
         <Filters onSearchChange={handleSearchChange} onTypeChange={handleTypeChange} />
 
+        {/* User Preferences Component */}
+        <UserPreferences onPreferenceSelect={handlePreferenceSelect} />
+
         <PokemonList pokemons={pokemons} />
 
-        {/* Show Pagination only if no type is selected */}
-        {!selectedType && (
+        {/* Show Pagination only if not filtering by type or preference */}
+        {!selectedType && !selectedPreference && (
           <Pagination
             currentPage={currentPage}
             totalPages={totalPages}
