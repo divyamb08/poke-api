@@ -1,26 +1,30 @@
-/* styles/PokemonCard.module.css */
-
 .card {
     background-color: var(--card-background);
     color: var(--text-color);
     width: 200px;
-    margin: 10px; /* Margin to separate each card */
+    margin: 10px;
     text-align: center;
     border-radius: 8px;
-    border: 1px solid var(--border-color); /* Add border */
+    border: 1px solid var(--border-color);
     overflow: hidden;
     display: flex;
     flex-direction: column;
     justify-content: space-between;
+    transition: transform 0.3s;
   }
   
-  .card img {
-    width: 100%;
-    height: auto;
+  .card:hover {
+    transform: translateY(-5px);
+  }
+  
+  .card a {
+    text-decoration: none;
+    color: inherit;
   }
   
   .card h3 {
-    margin: 10px 0;
+    margin-top: 10px;
+    font-size: 1.25rem;
   }
   
   .detailsLink {

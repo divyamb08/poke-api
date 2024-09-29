@@ -26,6 +26,10 @@
     --button-background: #e0e0e0;
     --border-color: #cccccc;
     --button-background-hover: #d0d0d0;
+    --header-background: #342f38;
+    --header-text-color: #ffffff;
+    --card-shadow: rgba(0, 0, 0, 0.1) 0px 2px 4px;
+    --card-hover-shadow: rgba(0, 0, 0, 0.2) 0px 4px 8px;
   }
   
   /* Dark theme variables */
@@ -36,6 +40,10 @@
     --button-background: #2e2e2e;
     --border-color: #444444;
     --button-background-hover: #3e3e3e;
+    --header-background: #342f38;
+    --header-text-color: #ffffff;
+    --card-shadow: rgba(255, 255, 255, 0.1) 0px 2px 4px;
+    --card-hover-shadow: rgba(255, 255, 255, 0.2) 0px 4px 8px;
   }
   
   /* Apply variables to elements */

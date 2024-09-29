@@ -6,11 +6,11 @@ const ThemeToggleButton = () => {
 
   return (
     <button
-      className="theme-toggle-button"
+      className="theme-toggle-button p-5 m-2"
       onClick={toggleTheme}
       aria-label="Toggle Theme"
     >
-      {theme === 'light' ? '🌙 Dark Mode' : '☀️ Light Mode'}
+      {theme === 'light' ? '🌙' : '☀️'}
     </button>
   );
 };

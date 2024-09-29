@@ -3,120 +3,215 @@ import {
   fetchPokemonDetails,
   fetchPokemonSpecies,
   fetchEvolutionChain,
-  fetchMoveDetails
+  fetchMoveDetails,
 } from '../../services/pokeapi';
+import Head from 'next/head';
 
 const PokemonDetail = ({ pokemon, species, evolutionChain }) => {
-    const [movesDetails, setMovesDetails] = useState([]);
-    useEffect(() => {
-        const getMovesDetails = async () => {
-          try {
-            const movesToShow = pokemon.moves.slice(0,10); // Limit to first 5 moves
-            const movesPromises = movesToShow.map((moveInfo) =>
-              fetchMoveDetails(moveInfo.move.url)
-            );
-            const movesData = await Promise.all(movesPromises);
-            setMovesDetails(movesData);
-          } catch (error) {
-            console.error('Error fetching move details:', error);
-          }
-        };
-    
-        getMovesDetails();
-      }, [pokemon.moves]);
+  const [movesDetails, setMovesDetails] = useState([]);
+
+  useEffect(() => {
+    const getMovesDetails = async () => {
+      try {
+        const movesToShow = pokemon.moves.slice(0, 12);
+        const movesPromises = movesToShow.map((moveInfo) =>
+          fetchMoveDetails(moveInfo.move.url)
+        );
+        const movesData = await Promise.all(movesPromises);
+        setMovesDetails(movesData);
+      } catch (error) {
+        console.error('Error fetching move details:', error);
+      }
+    };
+
+    getMovesDetails();
+  }, [pokemon.moves]);
+
   return (
-    <div>
-      <h1>{pokemon.name}</h1>
-      <img
-        src={pokemon.sprites.front_default}
-        alt={pokemon.name}
-        style={{ width: '200px' }}
-      />
+    <>
+      <Head>
+        <title>{pokemon.name} - Pokémon Details</title>
+      </Head>
+      <div className="min-h-screen bg-gray-100 dark:bg-gray-900">
+        <header className="bg-red-500 dark:bg-red-700 text-white p-4 text-center">
+          <h1 className="text-3xl font-bold">Pokémon Details</h1>
+        </header>
+        <main className="container mx-auto p-6">
+          <div className="bg-white dark:bg-gray-800 shadow-lg rounded-lg p-6 mb-8">
+            <h1 className="text-4xl font-bold mb-6 text-center capitalize text-gray-800 dark:text-white">
+              {pokemon.name}
+            </h1>
+            <div className="flex flex-col md:flex-row items-center">
+              <img
+                src={pokemon.sprites.other['official-artwork'].front_default || pokemon.sprites.front_default}
+                alt={pokemon.name}
+                className="w-64 h-64 mb-6 md:mb-0 md:mr-8"
+              />
+              <div className="flex-1">
+                <h2 className="text-2xl font-semibold mb-4 text-gray-800 dark:text-white">Types</h2>
+                <div className="flex flex-wrap mb-6">
+                  {pokemon.types.map((typeInfo) => (
+                    <span
+                      key={typeInfo.type.name}
+                      className={`mr-2 mb-2 px-4 py-2 rounded-full text-white capitalize ${getTypeColor(
+                        typeInfo.type.name
+                      )}`}
+                    >
+                      {typeInfo.type.name}
+                    </span>
+                  ))}
+                </div>
 
-      <h2>Types</h2>
-      <ul>
-        {pokemon.types.map((typeInfo) => (
-          <li key={typeInfo.type.name}>{typeInfo.type.name}</li>
-        ))}
-      </ul>
+                <h2 className="text-2xl font-semibold mb-4 text-gray-800 dark:text-white">Abilities</h2>
+                <ul className="list-disc list-inside mb-6 text-gray-700 dark:text-gray-300">
+                  {pokemon.abilities.map((abilityInfo) => (
+                    <li key={abilityInfo.ability.name} className="capitalize">
+                      {abilityInfo.ability.name}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            </div>
+          </div>
 
-      <h2>Abilities</h2>
-      <ul>
-        {pokemon.abilities.map((abilityInfo) => (
-          <li key={abilityInfo.ability.name}>{abilityInfo.ability.name}</li>
-        ))}
-      </ul>
+          <div className="bg-white dark:bg-gray-800 shadow-lg rounded-lg p-6 mb-8">
+            <h2 className="text-2xl font-semibold mb-4 text-gray-800 dark:text-white">Moves</h2>
+            {movesDetails.length > 0 ? (
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                {movesDetails.map((move) => (
+                  <div
+                    key={move.name}
+                    className="bg-gray-100 dark:bg-gray-700 p-4 rounded-lg hover:shadow-xl transition-shadow duration-300"
+                  >
+                    <h3 className="text-xl font-semibold capitalize mb-2 text-gray-800 dark:text-white">
+                      {move.name}
+                    </h3>
+                    <p className="text-gray-700 dark:text-gray-300">
+                      <strong>Type:</strong>{' '}
+                      <span className={`capitalize ${getTypeColor(move.type.name)}`}>
+                        {move.type.name}
+                      </span>
+                    </p>
+                    <p className="text-gray-700 dark:text-gray-300">
+                      <strong>Power:</strong> {move.power || 'N/A'}
+                    </p>
+                    <p className="text-gray-700 dark:text-gray-300">
+                      <strong>PP:</strong> {move.pp}
+                    </p>
+                    <p className="text-gray-700 dark:text-gray-300">
+                      <strong>Accuracy:</strong> {move.accuracy || 'N/A'}
+                    </p>
+                    <p className="text-gray-700 dark:text-gray-300">
+                      <strong>Damage Class:</strong> {move.damage_class.name}
+                    </p>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <p className="text-gray-700 dark:text-gray-300">Loading moves...</p>
+            )}
+          </div>
 
-      <h2>Moves</h2>
-      {movesDetails.length > 0 ? (
-        <ul>
-          {movesDetails.map((move) => (
-            <li key={move.name}>
-              <h3>{move.name}</h3>
-              <p>
-                <strong>Type:</strong> {move.type.name}
-              </p>
-              <p>
-                <strong>Power:</strong> {move.power || 'N/A'}
-              </p>
-              <p>
-                <strong>PP:</strong> {move.pp}
-              </p>
-              <p>
-                <strong>Accuracy:</strong> {move.accuracy || 'N/A'}
-              </p>
-              <p>
-                <strong>Damage Class:</strong> {move.damage_class.name}
-              </p>
-              <p>
-                <strong>Effect:</strong>{' '}
-                {move.effect_entries.length > 0
-                  ? move.effect_entries[0].effect.replace(
-                      '$effect_chance',
-                      move.effect_chance
-                    )
-                  : 'No effect information available.'}
-              </p>
-            </li>
-          ))}
-        </ul>
-      ) : (
-        <p>Loading moves...</p>
-      )}
+          <div className="bg-white dark:bg-gray-800 shadow-lg rounded-lg p-6 mb-8">
+            <h2 className="text-2xl font-semibold mb-4 text-gray-800 dark:text-white">Species Info</h2>
+            <p className="text-gray-700 dark:text-gray-300">
+              <strong>Habitat:</strong> {species.habitat ? species.habitat.name : 'Unknown'}
+            </p>
+            <p className="text-gray-700 dark:text-gray-300">
+              <strong>Color:</strong> {species.color.name}
+            </p>
+            <p className="text-gray-700 dark:text-gray-300">
+              <strong>Shape:</strong> {species.shape.name}
+            </p>
+          </div>
 
-      <h2>Species Info</h2>
-      <p>
-        <strong>Habitat:</strong>{' '}
-        {species.habitat ? species.habitat.name : 'Unknown'}
-      </p>
-      <p>
-        <strong>Color:</strong> {species.color.name}
-      </p>
-      <p>
-        <strong>Shape:</strong> {species.shape.name}
-      </p>
-
-      <h2>Evolution Chain</h2>
-      {evolutionChain ? (
-        <EvolutionChain chain={evolutionChain.chain} />
-      ) : (
-        <p>No evolution data available.</p>
-      )}
-    </div>
+          <div className="bg-white dark:bg-gray-800 shadow-lg rounded-lg p-6">
+            <h2 className="text-2xl font-semibold mb-4 text-gray-800 dark:text-white">Evolution Chain</h2>
+            {evolutionChain ? (
+              <EvolutionChain chain={evolutionChain.chain} />
+            ) : (
+              <p className="text-gray-700 dark:text-gray-300">No evolution data available.</p>
+            )}
+          </div>
+        </main>
+      </div>
+    </>
   );
 };
 
-// Recursive component to display the evolution chain
+// Function to get color classes based on Pokémon type
+const getTypeColor = (type) => {
+  switch (type) {
+    case 'normal':
+      return 'bg-gray-400';
+    case 'fire':
+      return 'bg-red-500';
+    case 'water':
+      return 'bg-blue-500';
+    case 'grass':
+      return 'bg-green-500';
+    case 'electric':
+      return 'bg-yellow-400';
+    case 'ice':
+      return 'bg-blue-200';
+    case 'fighting':
+      return 'bg-orange-700';
+    case 'poison':
+      return 'bg-purple-500';
+    case 'ground':
+      return 'bg-yellow-700';
+    case 'flying':
+      return 'bg-indigo-300';
+    case 'psychic':
+      return 'bg-pink-500';
+    case 'bug':
+      return 'bg-green-700';
+    case 'rock':
+      return 'bg-yellow-800';
+    case 'ghost':
+      return 'bg-indigo-800';
+    case 'dark':
+      return 'bg-gray-800';
+    case 'dragon':
+      return 'bg-indigo-700';
+    case 'steel':
+      return 'bg-gray-500';
+    case 'fairy':
+      return 'bg-pink-300';
+    default:
+      return 'bg-gray-300';
+  }
+};
+
+// EvolutionChain component remains the same
 const EvolutionChain = ({ chain }) => {
+  const evolutionSteps = [];
+
+  const traverseChain = (node) => {
+    evolutionSteps.push(node.species);
+    if (node.evolves_to.length > 0) {
+      traverseChain(node.evolves_to[0]);
+    }
+  };
+
+  traverseChain(chain);
+
   return (
-    <ul>
-      <li>
-        {chain.species.name}
-        {chain.evolves_to.length > 0 && (
-          <EvolutionChain chain={chain.evolves_to[0]} />
-        )}
-      </li>
-    </ul>
+    <div className="flex items-center justify-center flex-wrap">
+      {evolutionSteps.map((species, index) => (
+        <div key={species.name} className="text-center m-4">
+          <img
+            src={`https://img.pokemondb.net/sprites/home/normal/${species.name}.png`}
+            alt={species.name}
+            className="w-24 h-24 mx-auto"
+          />
+          <p className="capitalize mt-2 text-gray-800 dark:text-white">{species.name}</p>
+          {index < evolutionSteps.length - 1 && (
+            <span className="text-2xl mx-4 text-gray-800 dark:text-white">&rarr;</span>
+          )}
+        </div>
+      ))}
+    </div>
   );
 };
 

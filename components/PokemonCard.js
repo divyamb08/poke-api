@@ -1,26 +1,33 @@
 import React, { useState } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import styles from '../styles/PokemonCard.module.css';
 
 const PokemonCard = ({ pokemon }) => {
-  const [imageLoaded, setImageLoaded] = useState(true);
+  const [imageError, setImageError] = useState(false);
   const pokemonId = pokemon.url.split('/')[6];
-  const imageUrl = `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${pokemonId}.png`;
 
-  const handleImageError = () => {
-    setImageLoaded(false);
-  };
+  const officialArtworkUrl = `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/${pokemonId}.png`;
+  const defaultSpriteUrl = `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${pokemonId}.png`;
 
-  if (!imageLoaded) {
-    return null;
-  }
+  const imageUrl = imageError ? defaultSpriteUrl : officialArtworkUrl;
 
   return (
     <div className={styles.card}>
-      <img src={imageUrl} alt={pokemon.name} onError={handleImageError} />
-      <h3>{pokemon.name}</h3>
-      <Link href={`/pokemon/${pokemon.name}`} className={styles.detailsLink}>
-        View Details
+      <Link href={`/pokemon/${pokemon.name}`}>
+        <div className="relative w-full h-56">
+          <Image
+            src={imageUrl}
+            alt={pokemon.name}
+            layout="fill"
+            objectFit="contain"
+            className="mx-auto"
+            onError={() => setImageError(true)}
+          />
+        </div>
+        <h3 className="capitalize text-center mt-2 text-lg font-semibold">
+          {pokemon.name}
+        </h3>
       </Link>
     </div>
   );

@@ -1,10 +1,12 @@
 // services/pokeapi.js
 import axios from 'axios';
 
-export const fetchPokemonList = async () => {
+export const fetchPokemonList = async (limit = 100, offset = 0) => {
   try {
-    const response = await axios.get('https://pokeapi.co/api/v2/pokemon?limit=800');
-    return response.data.results;
+    const response = await axios.get(
+      `https://pokeapi.co/api/v2/pokemon?limit=${limit}&offset=${offset}`
+    );
+    return response.data;
   } catch (error) {
     throw error;
   }

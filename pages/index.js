@@ -1,70 +1,49 @@
 // pages/index.js
 import React, { useState, useEffect } from 'react';
-import { fetchPokemonList, fetchPokemonsByType } from '../services/pokeapi';
+import { fetchPokemonList } from '../services/pokeapi';
 import PokemonList from '../components/PokemonList';
-import Filters from '../components/Filters';
-import ThemeToggleButton from '../components/ThemeToggleButton';
+import Pagination from '../components/Pagination.js';
+import Layout from '../components/Layout';
 
-const HomePage = ({ initialPokemons }) => {
-  const [allPokemons, setAllPokemons] = useState(initialPokemons);
-  const [filteredPokemons, setFilteredPokemons] = useState(initialPokemons);
-  const [nameFilter, setNameFilter] = useState('');
-  const [typeFilter, setTypeFilter] = useState('');
+const HomePage = () => {
+    const [pokemons, setPokemons] = useState([]);
+    const [totalPokemons, setTotalPokemons] = useState(0);
+    const [currentPage, setCurrentPage] = useState(1);
+    const [pokemonsPerPage] = useState(100); // Fixed number of Pokémon per page
 
-  useEffect(() => {
-    const filterPokemons = async () => {
-      let pokemonsToFilter = allPokemons;
+    useEffect(() => {
+        const fetchData = async() => {
+            try {
+                const offset = (currentPage - 1) * pokemonsPerPage;
+                const data = await fetchPokemonList(pokemonsPerPage, offset);
+                setPokemons(data.results);
+                setTotalPokemons(data.count);
+            } catch (error) {
+                console.error('Error fetching Pokémon list:', error);
+            }
+        };
 
-      if (typeFilter) {
-        try {
-          // Fetch Pokémon by the selected type
-          const pokemonsByType = await fetchPokemonsByType(typeFilter);
-          const pokemonsByTypeNames = pokemonsByType.map((p) => p.name);
+        fetchData();
+    }, [currentPage, pokemonsPerPage]);
 
-          // Filter the initial list to include only Pokémon of the selected type
-          pokemonsToFilter = allPokemons.filter((pokemon) =>
-            pokemonsByTypeNames.includes(pokemon.name)
-          );
-        } catch (error) {
-          console.error('Error fetching Pokémon by type:', error);
-          pokemonsToFilter = [];
-        }
-      }
+    // Calculate total pages
+    const totalPages = Math.ceil(totalPokemons / pokemonsPerPage);
 
-      if (nameFilter) {
-        pokemonsToFilter = pokemonsToFilter.filter((pokemon) =>
-          pokemon.name.includes(nameFilter)
-        );
-      }
-
-      setFilteredPokemons(pokemonsToFilter);
-    };
-
-    filterPokemons();
-  }, [nameFilter, typeFilter, allPokemons]);
-
-  const handleFilter = ({ name, type }) => {
-    setNameFilter(name);
-    setTypeFilter(type);
-  };
-
-  return (
-    <div>
-      <ThemeToggleButton />
-      <h1>Pokémon List</h1>
-      <Filters onFilter={handleFilter} />
-      <PokemonList pokemons={filteredPokemons} />
-    </div>
-  );
+    return ( <
+        Layout >
+        <
+        div className = "container mx-auto p-6" >
+        <
+        h1 className = "text-4xl font-bold mb-6 text-center" > Pokémon List < /h1> <
+        PokemonList pokemons = { pokemons }
+        /> <
+        Pagination currentPage = { currentPage }
+        totalPages = { totalPages }
+        setCurrentPage = { setCurrentPage }
+        /> <
+        /div> <
+        /Layout>
+    );
 };
-
-export async function getStaticProps() {
-  try {
-    const pokemons = await fetchPokemonList();
-    return { props: { initialPokemons: pokemons } };
-  } catch (error) {
-    return { props: { initialPokemons: [] } };
-  }
-}
 
 export default HomePage;
