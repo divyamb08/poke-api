@@ -1,0 +1,89 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+.pokemon-list {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+  
+  .card {
+    width: 200px;
+    margin: 10px;
+    text-align: center;
+  }
+  
+  @media (max-width: 600px) {
+    .card {
+      width: 100%;
+    }
+  }
+  
+  :root {
+    --background-color: #ffffff;
+    --text-color: #000000;
+    --card-background: #f0f0f0;
+    --button-background: #e0e0e0;
+    --border-color: #cccccc;
+    --button-background-hover: #d0d0d0;
+  }
+  
+  /* Dark theme variables */
+  body.dark {
+    --background-color: #121212;
+    --text-color: #ffffff;
+    --card-background: #1e1e1e;
+    --button-background: #2e2e2e;
+    --border-color: #444444;
+    --button-background-hover: #3e3e3e;
+  }
+  
+  /* Apply variables to elements */
+  body {
+    background-color: var(--background-color);
+    color: var(--text-color);
+  }
+  
+  /* Other styles */
+  .card {
+    background-color: var(--card-background);
+    /* ...other styles */
+  }
+  
+  .button {
+    background-color: var(--button-background);
+    color: var(--text-color);
+    /* ...other styles */
+  }
+  
+  /* Ensure images don't invert in dark mode */
+  img {
+    filter: invert(0);
+  }
+  .theme-toggle-button {
+    position: fixed;
+    top: 10px;
+    right: 10px;
+    background-color: var(--button-background);
+    color: var(--text-color);
+    border: none;
+    padding: 10px;
+    cursor: pointer;
+    border-radius: 5px;
+    z-index: 10;
+  }
+  
+  .theme-toggle-button:hover {
+    opacity: 0.8;
+  }
+
+  .container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+  }
+  @media (max-width: 768px) {
+    .container {
+      padding: 10px;
+    }
+  }
