@@ -1,4 +1,3 @@
-// services/pokeapi.js
 import axios from 'axios';
 
 export const fetchPokemonList = async (limit = 100, offset = 0) => {
@@ -24,16 +23,17 @@ export const fetchPokemonDetails = async (name) => {
 export const fetchTypesList = async () => {
   try {
     const response = await axios.get('https://pokeapi.co/api/v2/type');
-    return response.data.results;
+    return response.data;
   } catch (error) {
     throw error;
   }
 };
 
-export const fetchPokemonsByType = async (typeName) => {
+
+export const fetchPokemonsByType = async (type) => {
   try {
-    const response = await axios.get(`https://pokeapi.co/api/v2/type/${typeName}`);
-    return response.data.pokemon.map((entry) => entry.pokemon);
+    const response = await axios.get(`https://pokeapi.co/api/v2/type/${type}`);
+    return response.data;
   } catch (error) {
     throw error;
   }
